@@ -1,0 +1,213 @@
+@charset "utf-8";
+
+:root {
+    --app-charcoal-black:#333333;
+    --app-font-color:#D4AF37;
+    
+    --app-button-background-hover-color:#FFD700;
+
+}
+
+.container {
+    width: min(100% - 30px, 1080px);
+    margin-inline: auto;
+}
+
+body {
+    font-family: "Rye", serif;
+    font-weight: 400;
+    font-style: normal;
+    background-image: url(../imgs/background-image.jpg);
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
+    cursor: url(../imgs/sheriff-badge.png), auto;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; 
+}
+
+/*----------------------------------*/
+/* Utilities                        */
+/*----------------------------------*/
+
+.flex {
+    display: flex;
+    place-items: center;
+}
+.hidden{
+    display: none;
+}
+.flex-between {
+    justify-content: space-between;
+}
+
+.flex-end {
+    justify-content: flex-end; 
+  
+}
+
+.flex-center {
+    justify-content: center;
+}
+
+.gap-10 {
+    gap: 10px;
+}
+.gap-30{
+    gap:30px;
+}
+.grid-center {
+    display: grid;
+    place-items: center;
+}
+.grid{
+    display: grid;
+
+}
+.flex-start{
+    justify-content: flex-start;
+
+}
+
+.align-left{
+    align-items: flex-start;
+}
+.align-center{
+    align-items: center;
+}
+.pad-20{
+    padding:20px;
+}
+
+/*----------------------------------*/
+/* Main                             */
+/*----------------------------------*/
+
+.start-logo{
+    height: 200px;
+    width:300px;
+    margin-top: 30svh;
+    padding-left: 30px;
+    background-image: url(../imgs/start.jpg);
+    text-align:left;
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat; 
+    color: var(--app-font-color);
+    z-index: 30;
+    transition: opacity 0.5s ease;
+    user-select: none; 
+    -webkit-user-select: none; 
+
+    h4{
+        font-size: 35px;
+       
+    }
+    h4:hover{
+        transform: scale(1.1);
+        filter:  drop-shadow(0 0 1rem var(--app-button-background-hover-color));
+    }
+    P{
+        margin-top: 60px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+}
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); 
+    z-index: 10;
+}
+@keyframes sand-fade-out {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translateY(-10px) ;
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px)  scale(1.2);
+        filter: blur(10px);
+    }
+}
+
+h1{
+    margin-bottom: 4svh;
+}
+.start-logo.fade-out {
+    animation: sand-fade-out 1.0s forwards;
+}
+.game-background{
+
+    width: 400px;
+    height:500px;
+    background-image: url(../imgs/882.jpg);
+    background-size: cover;
+    background-repeat: no-repeat; 
+    z-index: 10;
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    bottom: 10%;
+    padding: 20px;
+    transform: translate(-50%, 0);
+    transition: 0.5s ease-in-out ;
+    text-align: center;
+    color:var(--app-font-color);
+}
+
+.random-word{
+    color:var(--app-font-color);
+    user-select: none; 
+    -webkit-user-select: none; 
+   
+    font-size: 40px;
+}
+.random-word-div{
+    margin-top: 40px;
+ margin-bottom: 10svh;
+}
+.input-field{
+    background-color: var(--app-charcoal-black);
+    text-align: center;
+    height: 50px;
+    margin-top: 10px;
+    width:300px;
+    position: fixed;
+    top: 70%;
+    left: 10%;
+    bottom: 10%;
+}
+.beginning-countdown{
+    font-size: 80px;
+}
+ 
+.restart-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    color: var(--app-font-color);
+    background-color: var(--app-charcoal-black);
+    border-radius: 5px;
+    cursor: url(../imgs/sheriff-badge.png);
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.restart-button:hover {
+    background-color: var(--app-button-background-hover-color);
+    transform: scale(1.1);
+    cursor: url(../imgs/sheriff-badge.png);
+}
+.hit-container{
+    margin-bottom: 20px;
+}
