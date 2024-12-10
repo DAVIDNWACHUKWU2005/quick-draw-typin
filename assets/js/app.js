@@ -1,12 +1,5 @@
 'use strict';
-
-function select(selector, scope = document) {
-    return scope.querySelector(selector);
-}
-
-function listen(event, element, callback) {
-    return element.addEventListener(event, callback);
-}
+import { select, listen, wordBank } from './utils.js';
 
 const startLogo = select('.start-logo');
 const overlay = select('.overlay');
@@ -15,66 +8,75 @@ const main = select('main');
 const gameBackground = select('.game-background', main);
 const randomWordContainer = select('.random-word-div');
 const randomWord = select('.random-word', randomWordContainer);
-const game = select(".game");
+const game = select('.game');
 const inputField = select('.input-field', game);
 const beginningCountdown = select('.beginning-countdown');
 const countDown = select('.countdown', gameBackground);
-const hitDisplay = select('.hit');  
+const hitDisplay = select('.hit');
+const scoresDiv = document.createElement('div');
+scoresDiv.classList.add('scores-div');
+document.body.appendChild(scoresDiv);
 
-// Audio
 const beginningSong = new Audio('./assets/audio/beginning-song.mp3');
 const timesUpAudio = new Audio('./assets/audio/alarm.mp3');
-const themeSong = new Audio('./assets/audio/Themesong.mp3'); 
-const yeehawSound = new Audio('./assets/audio/yeehaw-sound-effect.mp3'); // New sound effect
+const themeSong = new Audio('./assets/audio/Themesong.mp3');
+const yeehawSound = new Audio('./assets/audio/sound.mp3');
 
-let time = 32;
+let time = 40;
 let threeSeconds = 3;
 let timerInterval;
 let restartButton;
-let wordBank = [
-    'dinosaur', 'love', 'pineapple', 'calendar', 'robot', 'building',
-    'population', 'weather', 'bottle', 'history', 'dream', 'character',
-    'money', 'absolute', 'discipline', 'machine', 'accurate', 'connection',
-    'rainbow', 'bicycle', 'eclipse', 'calculator', 'trouble', 'watermelon',
-    'developer', 'philosophy', 'database', 'capitalism', 'abominable', 'phone'
-];
 
-class Score {
-    constructor(date, hits, percentage) {
-        this.date = date;
-        this.hits = hits;
-        this.percentage = percentage;
-    }
+let correctHits = 0;
+let totalWordsTyped = 0;
+let scores = JSON.parse(localStorage.getItem('scores')) || [];
 
-    getDate() {
-        return this.date;
-    }
 
-    getHits() {
-        return this.hits;
-    }
-
-    getPercentage() {
-        return this.percentage;
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
 }
+shuffleArray(wordBank);
 
-let correctHits = 0;  
-let totalWordsTyped = 0;  
-let scores = [];  
 
 function randomElement() {
-    const index = Math.floor(Math.random() * wordBank.length);
-    const randomWordDisplay = wordBank.splice(index, 1)[0];
-    randomWord.textContent = randomWordDisplay;
+    if (wordBank.length > 0) {
+        randomWord.textContent = wordBank.pop();
+    } else {
+        randomWord.textContent = 'No more words!';
+    }
 }
+
+
+listen('input', inputField, (event) => {
+    const userInput = inputField.value.trim().toLowerCase();
+    const currentWord = randomWord.textContent;
+
+    if (userInput === currentWord) {
+        inputField.value = '';
+        correctHits++;
+        totalWordsTyped++;
+        hitDisplay.textContent = `Hits: ${correctHits}`;
+        yeehawSound.play();
+
+        if (wordBank.length > 0) {
+            randomElement();
+        } else {
+            endGame();
+        }
+    }
+});
+
 
 listen('click', startText, () => {
     startLogo.classList.add('fade-out');
     setTimeout(() => {
         startLogo.classList.add('hidden');
         overlay.classList.add('hidden');
-        beginningCountdownHandler(); 
+        inputField.focus(); 
+        beginningCountdownHandler();
     }, 1000);
 });
 
@@ -86,22 +88,22 @@ function beginningCountdownHandler() {
             beginningCountdown.textContent = threeSeconds;
         } else {
             clearInterval(countdownInterval);
-            beginningCountdown.textContent = ''; 
+            beginningCountdown.textContent = '';
             gameStart();
         }
     }, 1000);
 }
 
-// Start Game
 function gameStart() {
-    randomElement(); 
-    beginningSong.pause(); 
-    beginningSong.currentTime = 0; 
-    themeSong.play(); 
-    themeSong.loop = true; 
-    startTimer(); 
-    game.classList.remove('hidden'); 
-    displayRestartButton(); 
+    randomElement();
+    beginningSong.pause();
+    beginningSong.currentTime = 0;
+    themeSong.play();
+    themeSong.loop = true;
+    startTimer();
+    game.classList.remove('hidden');
+    inputField.focus();
+    displayRestartButton();
 }
 
 function startTimer() {
@@ -111,50 +113,46 @@ function startTimer() {
             endGame();
         } else {
             time--;
-            const minutes = Math.floor(time / 60);
             const seconds = time % 60;
-            countDown.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            countDown.textContent = `${seconds.toString().padStart(2, '0')}`;
         }
     }, 1000);
 }
 
+function restartGame() {
+    shuffleArray(wordBank);
+    randomWord.textContent = '';
+    inputField.value = '';
+    time = 40;
+    threeSeconds = 3;
+    hideRestartButtonInitially();
+    game.classList.add('hidden');
+    correctHits = 0;
+    totalWordsTyped = 0;
+    hitDisplay.textContent = 'Hits: 0';
+    inputField.disabled = false;
+    inputField.placeholder = 'Go on, type.';
+    themeSong.pause();
+    themeSong.currentTime = 0;
+    clearInterval(timerInterval);
+    beginningCountdownHandler();
+}
 
-listen('input', inputField, (event) => {
-    const userInput = inputField.value.trim();
-    const currentWord = randomWord.textContent;
-
-    if (userInput === currentWord) {
-        inputField.value = ''; 
-        correctHits++; 
-        hitDisplay.textContent = `Hits: ${correctHits}`;  
-        totalWordsTyped++; 
-        
-        yeehawSound.currentTime = 4; 
-        yeehawSound.play();
-        
-        if (wordBank.length > 0) {
-            randomElement(); 
-        } else {
-            endGame(); 
-        }
+function hideRestartButtonInitially() {
+    if (restartButton) {
+        restartButton.remove();
+        restartButton = null;
     }
-});
+}
 
 
 
-listen('keydown', inputField, (event) => {
-    if (event.key === 'Backspace') {
-        const userInput = inputField.value.trim();
-        const currentWord = randomWord.textContent;
 
-        for (let i = 0; i < userInput.length; i++) {
-            if (userInput[i] !== currentWord[i]) {
-                return; 
-            }
-        }
-        event.preventDefault(); 
-    }
-});
+function stopAllMusic() {
+    themeSong.pause();
+    themeSong.currentTime = 0;
+}
+
 
 function displayRestartButton() {
     if (!restartButton) {
@@ -168,74 +166,57 @@ function displayRestartButton() {
 
         restartButton.addEventListener('click', () => {
             restartGame();
+            scoresDiv.classList.add('hidden'); 
         });
     }
 }
 
-function hideRestartButtonInitially() {
-    if (restartButton) {
-        restartButton.remove();
-        restartButton = null;
-    }
-}
-
-function restartGame() {
-   
-    wordBank = [
-        'dinosaur', 'love', 'pineapple', 'calendar', 'robot', 'building',
-        'population', 'weather', 'bottle', 'history', 'dream', 'character',
-        'money', 'absolute', 'discipline', 'machine', 'accurate', 'connection',
-        'rainbow', 'bicycle', 'eclipse', 'calculator', 'trouble', 'watermelon',
-        'developer', 'philosophy', 'database', 'capitalism', 'abominable', 'phone'
-    ];
-    randomWord.textContent = ''; 
-    inputField.value = ''; 
-    time = 32;
-    threeSeconds = 3;  
-
-    hideRestartButtonInitially(); 
-    game.classList.add('hidden'); 
-
-    correctHits = 0;
-    hitDisplay.textContent = 'Hits: 0';  
-
-    inputField.disabled = false; 
-    inputField.placeholder = 'Go on, type.'; 
-
-    themeSong.pause(); 
-    themeSong.currentTime = 0; 
-
-    
-    clearInterval(timerInterval); 
-    startTimer();  
-
-    beginningCountdownHandler(); 
-}
-
-function stopAllMusic() {
-    themeSong.pause(); 
-    themeSong.currentTime = 0;
-}
-
-// End Game
 function endGame() {
     clearInterval(timerInterval);
     countDown.textContent = '00:00';
-    timesUpAudio.play(); 
+    timesUpAudio.play();
     stopAllMusic();
-
     setTimeout(() => {
         timesUpAudio.pause();
         timesUpAudio.currentTime = 0;
     }, 3000);
 
-    inputField.disabled = true; 
-    inputField.value = ''; 
-    inputField.placeholder = 'GAME OVER!!'; 
-    const percentage = (correctHits / totalWordsTyped) * 100;
-    
-    const score = new Score(new Date().toLocaleString(), correctHits, percentage.toFixed(2));
-    scores.push(score);
+    inputField.disabled = true;
+    inputField.value = '';
+    inputField.placeholder = 'GAME OVER!!';
 
-    displayRestartButton(); 
+    const percentage = totalWordsTyped === 0 ? 0 : (correctHits / totalWordsTyped) * 100;
+
+    scores.push({
+        date: new Date().toLocaleString(),
+        hits: correctHits,
+        percentage: percentage.toFixed(2),
+    });
+
+    scores.sort((a, b) => b.hits - a.hits);
+    scores.splice(10);
+    localStorage.setItem('scores', JSON.stringify(scores));
+
+    correctHits = 0; 
+    updateScoreboard();
+    scoresDiv.classList.remove('hidden');
+    displayRestartButton();
+}
+
+function updateScoreboard() {
+    scoresDiv.innerHTML = ''; 
+    scoresDiv.classList.add('scoreboard');
+
+    if (scores.length > 0) {
+        const title = document.createElement('h3');
+        title.classList.add('scoreboard-title');
+        title.textContent = 'Highest Scores';
+        scoresDiv.appendChild(title);
+
+        scores.forEach((score, index) => {
+            const scoreItem = document.createElement('div');
+            scoreItem.textContent = `#${index + 1}. Hits: ${score.hits}`;
+            scoresDiv.appendChild(scoreItem);
+        });
+    } 
 }

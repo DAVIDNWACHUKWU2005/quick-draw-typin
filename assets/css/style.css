@@ -3,6 +3,7 @@
 :root {
     --app-charcoal-black:#333333;
     --app-font-color:#D4AF37;
+    --app-white: #ffffff;
     
     --app-button-background-hover-color:#FFD700;
 
@@ -180,6 +181,7 @@ h1{
     background-color: var(--app-charcoal-black);
     text-align: center;
     height: 50px;
+    color: var(--app-white);
     margin-top: 10px;
     width:300px;
     position: fixed;
@@ -210,4 +212,15 @@ h1{
 }
 .hit-container{
     margin-bottom: 20px;
+}
+
+
+.scoreboard{
+    width:200px;
+    margin-bottom: 40px;
+    align-content: center;
+    background-color:#D4AF37;
+  padding:40px;
+    justify-content: space-between;
+    line-height: 40px;
 }
